@@ -1,0 +1,8 @@
+https://github.com/RobTillaart/BitArray
+https://stackoverflow.com/questions/10493411/what-is-bit-masking
+https://forum.arduino.cc/t/bit-packing-union-puzzle/535823
+https://forum.arduino.cc/t/bitbool-class-boolean-array-upto-16000-elements-on-uno/125764
+https://forum.arduino.cc/t/more-efficient-data-storage-method/145132
+https://docs.arduino.cc/built-in-examples/control-structures/Arrays/
+https://forum.arduino.cc/t/bit-storing-as-byte/521098/5
+https://github.com/RobTillaart/BoolArray

@@ -13,7 +13,13 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, NEO_GRB + NEO_KH
 Adafruit_NeoPixel mediumStrip = Adafruit_NeoPixel(MEDIUM_LED_COUNT, MEDIUM_LED_PIN, NEO_GRBW + NEO_KHZ800);
 Adafruit_NeoPixel largeStrip = Adafruit_NeoPixel(LARGE_LED_COUNT, LARGE_LED_PIN, NEO_GRB + NEO_KHZ800);
 
-bool run = false;
+int actionButtonPin = 0;
+int northButtonPin = 1;
+int eastButtonPin = 2;
+int southButtonPin = 3;
+int westButtonPin = 4;
+//LEAVE PIN 5 FOR RANDOM
+
 //this is the array that stores the map of the game, 1 means a corridor, 0 means a wall, use ctrl + f to make it easier to see and edit
 bool wallMap[25][25] = {
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -119,12 +125,12 @@ void setup() {
 
   //let the games begin
   updateHealth();
-  wheelSpin();
+  navigation();
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-
+  wheelSpin();
 }
 
 void wheelSpin(){
@@ -148,7 +154,6 @@ void wheelSpin(){
 void navigation() {
   //north
   if(wallMap[playerPos[0]-1][playerPos[1]]){
-    Serial.println("n");
     for(int i=0; i< 6; i++){
       largeStrip.setPixelColor(i, strip.Color(10, 0, 0));
       largeStrip.show();
@@ -156,7 +161,6 @@ void navigation() {
   }
   //south
   if(wallMap[playerPos[0]+1][playerPos[1]]){
-    Serial.println("s");
     for(int i=12; i< 18; i++){
       largeStrip.setPixelColor(i, strip.Color(0, 10, 0));
       largeStrip.show();
@@ -164,7 +168,6 @@ void navigation() {
   }
   //east
   if(wallMap[playerPos[0]][playerPos[1]+1]){
-    Serial.println("e");
     for(int i=6; i< 12; i++){
       largeStrip.setPixelColor(i, strip.Color(0, 0, 10));
       largeStrip.show();
@@ -172,12 +175,13 @@ void navigation() {
   }
   //west
   if(wallMap[playerPos[0]][playerPos[1]-1]){
-    Serial.println("w");
     for(int i=18; i< 24; i++){
       largeStrip.setPixelColor(i, strip.Color(10, 10, 10));
       largeStrip.show();
     }
   }
+
+
 } 
 
 void inventory() {}

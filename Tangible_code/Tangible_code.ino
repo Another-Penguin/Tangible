@@ -3,6 +3,16 @@
  #include <avr/power.h> // Required for 16 MHz Adafruit Trinket
 #endif
 
+#define LED_PIN 9
+#define MEDIUM_LED_PIN 10
+#define LARGE_LED_PIN 11
+#define LED_COUNT 12
+#define MEDIUM_LED_COUNT 16
+#define LARGE_LED_COUNT 24
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel mediumStrip = Adafruit_NeoPixel(MEDIUM_LED_COUNT, MEDIUM_LED_PIN, NEO_GRBW + NEO_KHZ800);
+Adafruit_NeoPixel largeStrip = Adafruit_NeoPixel(LARGE_LED_COUNT, LARGE_LED_PIN, NEO_GRB + NEO_KHZ800);
+
 bool run = false;
 //this is the array that stores the map of the game, 1 means a corridor, 0 means a wall, use ctrl + f to make it easier to see and edit
 bool wallMap[25][25] = {
@@ -58,15 +68,22 @@ bool wallMap[25][25] = {
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+    };
+
+  int spawnNodes[5][2] = {
+    {17, 4},
+    {5, 5},
+    {4, 18},
+    {14, 22},
+    {15, 23}
   };
 
-void setup() {
-  // put your setup code here, to run once:
-  Serial.begin(9600);
   // Active nodes for combat phase
   int attackNode1, attackNode2;
   int defendNode1, defendNode2;
   int inventoryNode;
+  int mode = 0;
+  bool isFighting = false;
 
   // stats for player and enemy. Order in arrays is health, damage, speed
   int playerStats[3] = {12, 1, 1};
@@ -82,6 +99,27 @@ void setup() {
 
   // map management. playerPos array: {y, x}. map array: {y, x, isWall, isVisited}
   int playerPos[2] = {0, 0};
+
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(9600);
+  randomSeed(analogRead(5));
+
+  strip.begin();
+  strip.show();
+  mediumStrip.begin();
+  mediumStrip.show();
+  largeStrip.begin();
+  largeStrip.show();
+
+  //Select staring node
+  int start = random(5);
+  playerPos[0] = spawnNodes[start][0];
+  playerPos[1] = spawnNodes[start][1];
+
+  //let the games begin
+  updateHealth();
+  wheelSpin();
 }
 
 void loop() {
@@ -89,12 +127,81 @@ void loop() {
 
 }
 
+void wheelSpin(){
+  //Exploring dungeon
+  if (mode == 0){
+    navigation();
+  }
+  //Inventory wheel
+  if (mode == 1){
+    inventory();
+  }
+  //Combat wheel
+  if (mode == 2){
+    combat();
+  }
+  if (mode == 3){
+    defend();
+  }
+}
+
+void navigation() {
+  //north
+  if(wallMap[playerPos[0]-1][playerPos[1]]){
+    Serial.println("n");
+    for(int i=0; i< 6; i++){
+      largeStrip.setPixelColor(i, strip.Color(10, 0, 0));
+      largeStrip.show();
+    }
+  }
+  //south
+  if(wallMap[playerPos[0]+1][playerPos[1]]){
+    Serial.println("s");
+    for(int i=12; i< 18; i++){
+      largeStrip.setPixelColor(i, strip.Color(0, 10, 0));
+      largeStrip.show();
+    }
+  }
+  //east
+  if(wallMap[playerPos[0]][playerPos[1]+1]){
+    Serial.println("e");
+    for(int i=6; i< 12; i++){
+      largeStrip.setPixelColor(i, strip.Color(0, 0, 10));
+      largeStrip.show();
+    }
+  }
+  //west
+  if(wallMap[playerPos[0]][playerPos[1]-1]){
+    Serial.println("w");
+    for(int i=18; i< 24; i++){
+      largeStrip.setPixelColor(i, strip.Color(10, 10, 10));
+      largeStrip.show();
+    }
+  }
+} 
+
 void inventory() {}
 
-void combat() {}
+void combat() {
+  updateHealth();
+}
 
-void navigation() {} 
+void defend(){}
 
 void enterRoom() {}
 
-void wheelSpin() {}
+void updateHealth() {
+  //Set player health display
+  for(int i=0; i < playerStats[0]; i++){
+    strip.setPixelColor(i, strip.Color(0, 10, 0));
+    strip.show();
+  }
+  
+  //Set enemy Health display
+  if(!isFighting){
+    for(int i=0; i < enemyStats[0]; i++){
+     mediumStrip.setPixelColor(i, strip.Color(10, 0, 0, 0));
+     mediumStrip.show();
+   }
+  }
+}

@@ -118,7 +118,7 @@ void setup() {
   largeStrip.begin();
   largeStrip.show();
 
-  //Select staring node
+  //Select starting node
   int start = random(5);
   playerPos[0] = spawnNodes[start][0];
   playerPos[1] = spawnNodes[start][1];
@@ -146,6 +146,7 @@ void wheelSpin(){
   if (mode == 2){
     combat();
   }
+  //Defend wheel
   if (mode == 3){
     defend();
   }

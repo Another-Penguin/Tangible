@@ -150,6 +150,9 @@ void wheelSpin(){
   if (mode == 3){
     defend();
   }
+  if (mode == 4){
+    treasure();
+  }
 }
 
 void navigation() {
@@ -181,19 +184,96 @@ void navigation() {
       largeStrip.show();
     }
   }
+  visitmap[playerPos[0]][playerPos[1]] = true;
 
 
 } 
 
-void inventory() {}
+void inventory() {
+
+}
 
 void combat() {
+  int isTreasure = random(0, 20);
+  int temp = random(0, 23);
   updateHealth();
 }
 
-void defend(){}
+void defend(){
+  bool nodesFilled = false;
+  //5% chance for a treasure node in combat
+  int isTreasure = random(1, 20);
+  //list of active nodes for round
+  int usedNodes[4];
+  //possible treasure node
+  int treasureNode = random(0, 23);
 
-void enterRoom() {}
+  updateHealth();
+
+  //create combat nodes
+  for (int i = 0; i < 3; i++){
+    bool loop = true;
+    int dupeCheck;
+    //loop through a single element until it is unique
+    while (loop){
+      dupeCheck = 0;
+      usedNodes[i] = random(0, 23);
+      //check if node overlaps with active treasure node
+      if(usedNodes[i] != treasureNode && isTreasure == 20){
+        loop = false;
+      }
+      if (isTreasure != 20){
+        loop = false;
+      }
+      //if node is not unique, reroll
+      for (int j = 0; j < 3; j++){
+        if (usedNodes[i] == usedNodes[j]){
+          dupeCheck += 1;
+        }
+        if (dupeCheck > 1){
+          loop = true;
+        }
+      }
+    }
+  }
+  //display all nodes
+  for (int i = 0; i < 3; i++){
+    largeStrip.setPixelColor(usedNodes[i], (10, 0, 0))
+    largeStrip.show();
+  }
+  if (isTreasure == 20){
+    largeStrip.setPixelColor(treasureNode, (10, 10, 0))
+    largeStrip.show();
+  }
+}
+
+void treasure(){
+  int temp = random(0, 3);
+  potions[temp]+=1;
+ if (poitions[temp] > 3){
+  potions[temp] = 3;
+ }
+}
+
+void enterRoom() {
+  if (visitmap[playerPos[0]][playerPos[1]]){
+    int temp = random(1, 3);
+    if (temp == 1){
+      //combat
+      isFighting = true;
+      enemyStats[0] = 16;
+      mode == 2;
+    }
+    if (temp == 2){
+      //nothing
+      mode == 0;
+    }
+    if (temp == 3){
+      //treasure
+      mode == 4;
+    }
+  }
+}
 
 void updateHealth() {
   //Set player health display
@@ -203,7 +283,7 @@ void updateHealth() {
   }
   
   //Set enemy Health display
-  if(!isFighting){
+  if(isFighting){
     for(int i=0; i < enemyStats[0]; i++){
      mediumStrip.setPixelColor(i, strip.Color(10, 0, 0, 0));
      mediumStrip.show();

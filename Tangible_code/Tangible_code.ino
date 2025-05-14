@@ -3,9 +3,10 @@
  #include <avr/power.h> // Required for 16 MHz Adafruit Trinket
 #endif
 
-#define LED_PIN 9
-#define MEDIUM_LED_PIN 10
-#define LARGE_LED_PIN 11
+#define LED_PIN 2
+#define MEDIUM_LED_PIN 3
+#define LARGE_LED_PIN 4
+
 #define LED_COUNT 12
 #define MEDIUM_LED_COUNT 16
 #define LARGE_LED_COUNT 24
@@ -13,12 +14,12 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, NEO_GRB + NEO_KH
 Adafruit_NeoPixel mediumStrip = Adafruit_NeoPixel(MEDIUM_LED_COUNT, MEDIUM_LED_PIN, NEO_GRBW + NEO_KHZ800);
 Adafruit_NeoPixel largeStrip = Adafruit_NeoPixel(LARGE_LED_COUNT, LARGE_LED_PIN, NEO_GRB + NEO_KHZ800);
 
-int actionButtonPin = 0;
-int northButtonPin = 1;
-int eastButtonPin = 2;
-int southButtonPin = 3;
-int westButtonPin = 4;
-//LEAVE PIN 5 FOR RANDOM
+//int actionButtonPin = ;
+//int northButtonPin = ;
+//int eastButtonPin = ;
+//int southButtonPin = ;
+//int westButtonPin = ;
+//LEAVE PIN 26 FOR RANDOM
 
 //this is the array that stores the map of the game, 1 means a corridor, 0 means a wall, use ctrl + f to make it easier to see and edit
 bool wallMap[25][25] = {
@@ -109,7 +110,7 @@ bool wallMap[25][25] = {
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
-  randomSeed(analogRead(5));
+  randomSeed(analogRead(26));
 
   strip.begin();
   strip.show();

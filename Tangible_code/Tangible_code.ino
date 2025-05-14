@@ -184,7 +184,7 @@ void navigation() {
       largeStrip.show();
     }
   }
-  visitmap[playerPos[0]][playerPos[1]] = true;
+  visitMap[playerPos[0]][playerPos[1]] = true;
 
 
 } 
@@ -238,11 +238,11 @@ void defend(){
   }
   //display all nodes
   for (int i = 0; i < 3; i++){
-    largeStrip.setPixelColor(usedNodes[i], (10, 0, 0))
+    largeStrip.setPixelColor(usedNodes[i], (10, 0, 0));
     largeStrip.show();
   }
   if (isTreasure == 20){
-    largeStrip.setPixelColor(treasureNode, (10, 10, 0))
+    largeStrip.setPixelColor(treasureNode, (10, 10, 0));
     largeStrip.show();
   }
 }
@@ -250,13 +250,13 @@ void defend(){
 void treasure(){
   int temp = random(0, 3);
   potions[temp]+=1;
- if (poitions[temp] > 3){
+ if (potions[temp] > 3){
   potions[temp] = 3;
  }
 }
 
 void enterRoom() {
-  if (visitmap[playerPos[0]][playerPos[1]]){
+  if (visitMap[playerPos[0]][playerPos[1]]){
     int temp = random(1, 3);
     if (temp == 1){
       //combat

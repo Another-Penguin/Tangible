@@ -105,6 +105,7 @@ bool wallMap[25][25] = {
 
   // map management. playerPos array: {y, x}. map array: {y, x, isWall, isVisited}
   int playerPos[2] = {0, 0};
+  int checkPos[2] = {0, 0};
 
 void setup() {
   // put your setup code here, to run once:
@@ -125,11 +126,14 @@ void setup() {
 
   //let the games begin
   updateHealth();
-  navigation();
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
+  if (playerPos != checkPos){
+    mode = 5
+    checkPos = playerPos;
+  }
   wheelSpin();
 }
 
@@ -150,52 +154,104 @@ void wheelSpin(){
   if (mode == 3){
     defend();
   }
+  //Inventory wheel
   if (mode == 4){
     treasure();
+  }
+  if (mode == 5){
+    enterRoom();
   }
 }
 
 void navigation() {
-  bool spinning = true;
-  int playerLocation = 0;
-  uint32_t activeColors[24];
-  for(int i = 0; i < 23; i++){
-    activeColors[i] = largeStrip.getPixelColor(i);
+  bool canNorth = false, canEast = false, canSouth = false, canWest = false;
+  //north
+  if(wallMap[playerPos[0]-1][playerPos[1]]){
+    for(int i=0; i< 6; i++){
+      largeStrip.setPixelColor(i, strip.Color(10, 0, 0));
+      largeStrip.show();
+    }
+    canNorth = true;
   }
-  while(spinning){
-    //north
-    if(wallMap[playerPos[0]-1][playerPos[1]]){
-      for(int i=0; i< 6; i++){
-        largeStrip.setPixelColor(i, strip.Color(10, 0, 0));
-        largeStrip.show();
-      }
+  //south
+  if(wallMap[playerPos[0]+1][playerPos[1]]){
+    for(int i=12; i< 18; i++){
+      largeStrip.setPixelColor(i, strip.Color(0, 10, 0));
+      largeStrip.show();
     }
-    //south
-    if(wallMap[playerPos[0]+1][playerPos[1]]){
-      for(int i=12; i< 18; i++){
-        largeStrip.setPixelColor(i, strip.Color(0, 10, 0));
-        largeStrip.show();
-      }
+    canSouth = true;
+  }
+  //east
+  if(wallMap[playerPos[0]][playerPos[1]+1]){
+    for(int i=6; i< 12; i++){
+      largeStrip.setPixelColor(i, strip.Color(0, 0, 10));
+      largeStrip.show();
     }
-    //east
-    if(wallMap[playerPos[0]][playerPos[1]+1]){
-      for(int i=6; i< 12; i++){
-        largeStrip.setPixelColor(i, strip.Color(0, 0, 10));
-        largeStrip.show();
-      }
+    canEast = true;
+  }
+  //west
+  if(wallMap[playerPos[0]][playerPos[1]-1]){
+    for(int i=18; i< 24; i++){
+      largeStrip.setPixelColor(i, strip.Color(10, 10, 10));
+      largeStrip.show();
     }
-    //west
-    if(wallMap[playerPos[0]][playerPos[1]-1]){
-      for(int i=18; i< 24; i++){
-        largeStrip.setPixelColor(i, strip.Color(10, 10, 10));
-        largeStrip.show();
-      }
-    }
-    visitMap[playerPos[0]][playerPos[1]] = true;
+    canWest = true;
+  }
+  visitMap[playerPos[0]][playerPos[1]] = true;
 
-    largeStrip.setPixelColor(playerLocation, strip.Color(10, 10, 0));
-    largeStrip.show();
-  } 
+  //Flash selected direction
+  //North
+  if(pinMode(northButtonPin, INPUT_PULLUP) && canNorth){
+    for(int i; i < 4; i++){
+      largeStrip.clear();
+      delay(100);
+      for(int j=0; j< 6; j++){
+        largeStrip.setPixelColor(j, strip.Color(10, 0, 0));
+        largeStrip.show();
+      }
+      delay(100);
+    }
+    playerPos[0] = playerPos[0]-1;
+  }
+  //South
+  if(pinMode(southButtonPin, INPUT_PULLUP) && canSouth){
+    for(int i; i < 4; i++){
+      largeStrip.clear();
+      delay(100);
+      for(int j=12; j< 18; j++){
+        largeStrip.setPixelColor(j, strip.Color(0, 10, 0));
+        largeStrip.show();
+      }
+      delay(100);
+    }
+    playerPos[0] = playerPos[0]+1;
+  }
+  //East
+  if(pinMode(eastButtonPin, INPUT_PULLUP) && canEast){
+    for(int i; i < 4; i++){
+      largeStrip.clear();
+      delay(100);
+      for(int j=6; j< 12; j++){
+        largeStrip.setPixelColor(j, strip.Color(0, 0, 10));
+        largeStrip.show();
+      }
+      delay(100);
+    }
+    playerPos[1] = playerPos[1]+1;
+  }
+  //West
+  if(pinMode(westButtonPin, INPUT_PULLUP) && canWest){
+    for(int i; i < 4; i++){
+      largeStrip.clear();
+      delay(100);
+      for(int j=18; j< 24; j++){
+        largeStrip.setPixelColor(j, strip.Color(10, 10, 10));
+        largeStrip.show();
+      }
+      delay(100);
+    }
+    playerPos[1] = playerPos[1]-1;
+  }
 }
 
 void inventory() {

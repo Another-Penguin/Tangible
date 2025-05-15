@@ -17,7 +17,9 @@ int actionButtonPin = 0;
 int northButtonPin = 4;
 int eastButtonPin = 2;
 int southButtonPin = 3;
-int westButtonPin = 1;
+#define westButtonPin 21
+
+int buttonState = 0;
 //LEAVE PIN 5 FOR RANDOM
 
 //this is the array that stores the map of the game, 1 means a corridor, 0 means a wall, use ctrl + f to make it easier to see and edit
@@ -48,7 +50,7 @@ bool wallMap[25][25] = {
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
   };
-  bool visitMap[25][25] = {
+bool visitMap[25][25] = {
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -124,6 +126,9 @@ void setup() {
   playerPos[0] = spawnNodes[start][0];
   playerPos[1] = spawnNodes[start][1];
 
+  checkPos[0] = playerPos[0];
+  checkPos[1] = playerPos[1];
+  pinMode(westButtonPin, INPUT_PULLUP);
   //let the games begin
   updateHealth();
 }
@@ -135,7 +140,9 @@ void loop() {
     checkPos[0] = playerPos[0];
     checkPos[1] = playerPos[1];
   }
-  wheelSpin();
+  buttonState = digitalRead(westButtonPin);
+  Serial.println(buttonState);
+  //wheelSpin();
 }
 
 void wheelSpin(){
@@ -254,7 +261,6 @@ void navigation() {
     playerPos[1] = playerPos[1]-1;
   }
   */
-  Serial.println(digitalRead(westButtonPin));
 }
 
 void inventory() {

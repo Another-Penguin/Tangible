@@ -14,10 +14,10 @@ Adafruit_NeoPixel mediumStrip = Adafruit_NeoPixel(MEDIUM_LED_COUNT, MEDIUM_LED_P
 Adafruit_NeoPixel largeStrip = Adafruit_NeoPixel(LARGE_LED_COUNT, LARGE_LED_PIN, NEO_GRB + NEO_KHZ800);
 
 int actionButtonPin = 0;
-int northButtonPin = 1;
+int northButtonPin = 4;
 int eastButtonPin = 2;
 int southButtonPin = 3;
-int westButtonPin = 4;
+int westButtonPin = 1;
 //LEAVE PIN 5 FOR RANDOM
 
 //this is the array that stores the map of the game, 1 means a corridor, 0 means a wall, use ctrl + f to make it easier to see and edit
@@ -131,8 +131,9 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   if (playerPos != checkPos){
-    mode = 5
-    checkPos = playerPos;
+    mode = 5;
+    checkPos[0] = playerPos[0];
+    checkPos[1] = playerPos[1];
   }
   wheelSpin();
 }
@@ -201,7 +202,7 @@ void navigation() {
 
   //Flash selected direction
   //North
-  if(pinMode(northButtonPin, INPUT_PULLUP) && canNorth){
+  /*if(pinMode(northButtonPin, INPUT_PULLUP) && canNorth){
     for(int i; i < 4; i++){
       largeStrip.clear();
       delay(100);
@@ -214,7 +215,7 @@ void navigation() {
     playerPos[0] = playerPos[0]-1;
   }
   //South
-  if(pinMode(southButtonPin, INPUT_PULLUP) && canSouth){
+  if(pinMode(southButtonPin, INPUT_PULLUP) = && canSouth){
     for(int i; i < 4; i++){
       largeStrip.clear();
       delay(100);
@@ -252,6 +253,8 @@ void navigation() {
     }
     playerPos[1] = playerPos[1]-1;
   }
+  */
+  Serial.println(digitalRead(westButtonPin));
 }
 
 void inventory() {
@@ -263,40 +266,7 @@ void combat() {
   int temp = random(0, 23);
   updateHealth();
 
-    for (int i = 0; i < 3; i++){
-    bool loop = true;
-    int dupeCheck;
-    //loop through a single element until it is unique
-    while (loop){
-      dupeCheck = 0;
-      usedNodes[i] = random(0, 23);
-      //check if node overlaps with active treasure node
-      if(usedNodes[i] != treasureNode && isTreasure == 20){
-        loop = false;
-      }
-      if (isTreasure != 20){
-        loop = false;
-      }
-      //if node is not unique, reroll
-      for (int j = 0; j < 3; j++){
-        if (usedNodes[i] == usedNodes[j]){
-          dupeCheck += 1;
-        }
-        if (dupeCheck > 1){
-          loop = true;
-        }
-      }
-    }
-  }
-  //display all nodes
-  for (int i = 0; i < 3; i++){
-    largeStrip.setPixelColor(usedNodes[i], (10, 0, 0));
-    largeStrip.show();
-  }
-  if (isTreasure == 20){
-    largeStrip.setPixelColor(treasureNode, (0, 0, 255));
-    largeStrip.show();
-  }
+  
 }
 
 void defend(){

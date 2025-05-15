@@ -3,9 +3,9 @@
  #include <avr/power.h> // Required for 16 MHz Adafruit Trinket
 #endif
 
-#define LED_PIN 9
-#define MEDIUM_LED_PIN 10
-#define LARGE_LED_PIN 11
+#define LED_PIN 2
+#define MEDIUM_LED_PIN 3
+#define LARGE_LED_PIN 4
 #define LED_COUNT 12
 #define MEDIUM_LED_COUNT 16
 #define LARGE_LED_COUNT 24
@@ -109,7 +109,7 @@ bool wallMap[25][25] = {
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
-  randomSeed(analogRead(5));
+  randomSeed(analogRead(26));
 
   strip.begin();
   strip.show();
@@ -156,38 +156,47 @@ void wheelSpin(){
 }
 
 void navigation() {
-  //north
-  if(wallMap[playerPos[0]-1][playerPos[1]]){
-    for(int i=0; i< 6; i++){
-      largeStrip.setPixelColor(i, strip.Color(10, 0, 0));
-      largeStrip.show();
-    }
+  bool spinning = true;
+  int playerLocation = 0;
+  uint32_t activeColors[24];
+  for(int i = 0; i < 23; i++){
+    activeColors[i] = largeStrip.getPixelColor(i);
   }
-  //south
-  if(wallMap[playerPos[0]+1][playerPos[1]]){
-    for(int i=12; i< 18; i++){
-      largeStrip.setPixelColor(i, strip.Color(0, 10, 0));
-      largeStrip.show();
+  while(spinning){
+    //north
+    if(wallMap[playerPos[0]-1][playerPos[1]]){
+      for(int i=0; i< 6; i++){
+        largeStrip.setPixelColor(i, strip.Color(10, 0, 0));
+        largeStrip.show();
+      }
     }
-  }
-  //east
-  if(wallMap[playerPos[0]][playerPos[1]+1]){
-    for(int i=6; i< 12; i++){
-      largeStrip.setPixelColor(i, strip.Color(0, 0, 10));
-      largeStrip.show();
+    //south
+    if(wallMap[playerPos[0]+1][playerPos[1]]){
+      for(int i=12; i< 18; i++){
+        largeStrip.setPixelColor(i, strip.Color(0, 10, 0));
+        largeStrip.show();
+      }
     }
-  }
-  //west
-  if(wallMap[playerPos[0]][playerPos[1]-1]){
-    for(int i=18; i< 24; i++){
-      largeStrip.setPixelColor(i, strip.Color(10, 10, 10));
-      largeStrip.show();
+    //east
+    if(wallMap[playerPos[0]][playerPos[1]+1]){
+      for(int i=6; i< 12; i++){
+        largeStrip.setPixelColor(i, strip.Color(0, 0, 10));
+        largeStrip.show();
+      }
     }
-  }
-  visitMap[playerPos[0]][playerPos[1]] = true;
+    //west
+    if(wallMap[playerPos[0]][playerPos[1]-1]){
+      for(int i=18; i< 24; i++){
+        largeStrip.setPixelColor(i, strip.Color(10, 10, 10));
+        largeStrip.show();
+      }
+    }
+    visitMap[playerPos[0]][playerPos[1]] = true;
 
-
-} 
+    largeStrip.setPixelColor(playerLocation, strip.Color(10, 10, 0));
+    largeStrip.show();
+  } 
+}
 
 void inventory() {
 

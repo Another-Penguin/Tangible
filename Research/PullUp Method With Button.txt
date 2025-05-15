@@ -1,0 +1,7 @@
+sites used:
+https://forums.raspberrypi.com/viewtopic.php?t=381685#:~:text=The%20erroneous%20leakage%20only%20occurs%20(and%20continues%20to,the%20input%20voltage%20out%20of%20the%20problematic%20range.
+https://forums.raspberrypi.com/viewtopic.php?t=375631&start=25
+http://www.d3noob.org/2022/10/pull-up-and-pull-down-resistors-and.html
+https://community.element14.com/products/raspberry-pi/f/forum/55046/rp2350-gpio-pull-down-latching-bug
+
+To get the button working without a resistor and to do so we had to set the pin it is using to do input_pullup which should have worked but offered us issues. We then switched to pulldown with was the opposite, but this had a problem with latching where it would get stuck as it couldn't release back to 0 and for some reason only pullup works in that setting. We then switched the ports from the normal pin and moved the pin to the direct ground pin which fixed the problem. We do need to fix that it doesn't toggle the value, it just sets the value whilst being pressed. 

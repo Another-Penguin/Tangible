@@ -262,6 +262,41 @@ void combat() {
   int isTreasure = random(0, 20);
   int temp = random(0, 23);
   updateHealth();
+
+    for (int i = 0; i < 3; i++){
+    bool loop = true;
+    int dupeCheck;
+    //loop through a single element until it is unique
+    while (loop){
+      dupeCheck = 0;
+      usedNodes[i] = random(0, 23);
+      //check if node overlaps with active treasure node
+      if(usedNodes[i] != treasureNode && isTreasure == 20){
+        loop = false;
+      }
+      if (isTreasure != 20){
+        loop = false;
+      }
+      //if node is not unique, reroll
+      for (int j = 0; j < 3; j++){
+        if (usedNodes[i] == usedNodes[j]){
+          dupeCheck += 1;
+        }
+        if (dupeCheck > 1){
+          loop = true;
+        }
+      }
+    }
+  }
+  //display all nodes
+  for (int i = 0; i < 3; i++){
+    largeStrip.setPixelColor(usedNodes[i], (10, 0, 0));
+    largeStrip.show();
+  }
+  if (isTreasure == 20){
+    largeStrip.setPixelColor(treasureNode, (0, 0, 255));
+    largeStrip.show();
+  }
 }
 
 void defend(){

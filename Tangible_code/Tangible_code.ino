@@ -129,6 +129,9 @@ void setup() {
   checkPos[0] = playerPos[0];
   checkPos[1] = playerPos[1];
   pinMode(westButtonPin, INPUT_PULLUP);
+  pinMode(southButtonPin, INPUT_PULLUP);
+  pinMode(eastButtonPin, INPUT_PULLUP);
+  pinMode(northButtonPin, INPUT_PULLUP);
   //let the games begin
   updateHealth();
 }
@@ -172,7 +175,10 @@ void wheelSpin(){
 }
 
 void navigation() {
-  bool canNorth = false, canEast = false, canSouth = false, canWest = false;
+  bool canNorth = false;
+  bool canEast = false;
+  bool canSouth = false;
+  bool canWest = false;
   //north
   if(wallMap[playerPos[0]-1][playerPos[1]]){
     for(int i=0; i< 6; i++){
@@ -209,7 +215,7 @@ void navigation() {
 
   //Flash selected direction
   //North
-  /*if(pinMode(northButtonPin, INPUT_PULLUP) && canNorth){
+  if((digitalRead(northButtonPin) == LOW) && canNorth){
     for(int i; i < 4; i++){
       largeStrip.clear();
       delay(100);
@@ -222,7 +228,7 @@ void navigation() {
     playerPos[0] = playerPos[0]-1;
   }
   //South
-  if(pinMode(southButtonPin, INPUT_PULLUP) = && canSouth){
+  if((digitalRead(southButtonPin) == LOW) && canSouth){
     for(int i; i < 4; i++){
       largeStrip.clear();
       delay(100);
@@ -235,7 +241,7 @@ void navigation() {
     playerPos[0] = playerPos[0]+1;
   }
   //East
-  if(pinMode(eastButtonPin, INPUT_PULLUP) && canEast){
+  if((digitalRead(eastButtonPin) == LOW) && canEast){
     for(int i; i < 4; i++){
       largeStrip.clear();
       delay(100);
@@ -248,7 +254,7 @@ void navigation() {
     playerPos[1] = playerPos[1]+1;
   }
   //West
-  if(pinMode(westButtonPin, INPUT_PULLUP) && canWest){
+  if((digitalRead(westButtonPin) == LOW) && canWest){
     for(int i; i < 4; i++){
       largeStrip.clear();
       delay(100);
@@ -260,7 +266,6 @@ void navigation() {
     }
     playerPos[1] = playerPos[1]-1;
   }
-  */
 }
 
 void inventory() {

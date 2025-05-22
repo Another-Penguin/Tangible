@@ -1,11 +1,9 @@
 #include <Adafruit_NeoPixel.h>
-#ifdef __AVR__
- #include <avr/power.h> // Required for 16 MHz Adafruit Trinket
-#endif
 
 #define LED_PIN 2
 #define MEDIUM_LED_PIN 3
 #define LARGE_LED_PIN 4
+
 #define LED_COUNT 12
 #define MEDIUM_LED_COUNT 16
 #define LARGE_LED_COUNT 24
@@ -13,14 +11,13 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, NEO_GRB + NEO_KH
 Adafruit_NeoPixel mediumStrip = Adafruit_NeoPixel(MEDIUM_LED_COUNT, MEDIUM_LED_PIN, NEO_GRBW + NEO_KHZ800);
 Adafruit_NeoPixel largeStrip = Adafruit_NeoPixel(LARGE_LED_COUNT, LARGE_LED_PIN, NEO_GRB + NEO_KHZ800);
 
-int actionButtonPin = 0;
-int northButtonPin = 4;
-int eastButtonPin = 2;
-int southButtonPin = 3;
-#define westButtonPin 21
-
+#define northButtonPin 21
+#define eastButtonPin 20
+#define southButtonPin 19
+#define westButtonPin 18
+#define actionButtonPin 17
 int buttonState = 0;
-//LEAVE PIN 5 FOR RANDOM
+//LEAVE PIN 26 FOR RANDOM
 
 //this is the array that stores the map of the game, 1 means a corridor, 0 means a wall, use ctrl + f to make it easier to see and edit
 bool wallMap[25][25] = {
@@ -78,36 +75,41 @@ bool visitMap[25][25] = {
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
     };
 
-  int spawnNodes[5][2] = {
-    {17, 4},
-    {5, 5},
-    {4, 18},
-    {14, 22},
-    {15, 23}
-  };
+int spawnNodes[5][2] = {
+  {17, 4},
+  {5, 5},
+  {4, 18},
+  {14, 22},
+  {15, 23}
+};
 
-  // Active nodes for combat phase
-  int attackNode1, attackNode2;
-  int defendNode1, defendNode2;
-  int inventoryNode;
-  int mode = 0;
-  bool isFighting = false;
+// Active nodes for combat phase
+int attackNode1, attackNode2;
+int defendNode1, defendNode2;
+int inventoryNode;
+int mode = 0;
+bool isFighting = false;
+int isTreasure;
+int usedNodes[4];
+int treasureNode;
+int playerSpin;
+bool defend = false;
 
-  // stats for player and enemy. Order in arrays is health, damage, speed
-  int playerStats[3] = {12, 1, 1};
-  int enemyStats[3] = {16, 1, 1};
-  int battlesWon = 0;
+// stats for player and enemy. Order in arrays is health, damage, speed
+int playerStats[3] = {12, 1, 1};
+int enemyStats[3] = {16, 1, 1};
+int battlesWon = 0;
 
-  // track distance travelled and which exits are currently active on wheel. Order for exits array is left, forward, right
-  int tilesPassed = 1;
-  bool exits[3] = {false, false, false};
+// track distance travelled and which exits are currently active on wheel. Order for exits array is left, forward, right
+int tilesPassed = 1;
+bool exits[3] = {false, false, false};
 
-  // inventory. Order in array is fast potion, slow, health, damage
-  int potions[4] = {0, 0, 0, 0};
+// inventory. Order in array is fast potion, slow, health, damage
+int potions[4] = {0, 0, 0, 0};
 
-  // map management. playerPos array: {y, x}. map array: {y, x, isWall, isVisited}
-  int playerPos[2] = {0, 0};
-  int checkPos[2] = {0, 0};
+// map management. playerPos array: {y, x}. map array: {y, x, isWall, isVisited}
+int playerPos[2] = {0, 0};
+int checkPos[2] = {0, 0};
 
 void setup() {
   // put your setup code here, to run once:
@@ -115,10 +117,23 @@ void setup() {
   randomSeed(analogRead(26));
 
   strip.begin();
-  strip.show();
   mediumStrip.begin();
-  mediumStrip.show();
   largeStrip.begin();
+
+  strip.clear();
+  mediumStrip.clear();
+  largeStrip.clear();
+
+  strip.begin();
+  strip.clear();
+  strip.show();
+
+  mediumStrip.begin();
+  mediumStrip.clear();
+  mediumStrip.show();
+
+  largeStrip.begin();
+  largeStrip.clear();
   largeStrip.show();
 
   //Select starting node
@@ -132,6 +147,7 @@ void setup() {
   pinMode(southButtonPin, INPUT_PULLUP);
   pinMode(eastButtonPin, INPUT_PULLUP);
   pinMode(northButtonPin, INPUT_PULLUP);
+  pinMode(actionButtonPin, INPUT_PULLUP);
   //let the games begin
   updateHealth();
 }
@@ -139,13 +155,11 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   if (playerPos != checkPos){
-    mode = 5;
+  //  mode = 5;
     checkPos[0] = playerPos[0];
     checkPos[1] = playerPos[1];
   }
-  buttonState = digitalRead(westButtonPin);
-  Serial.println(buttonState);
-  //wheelSpin();
+  wheelSpin();
 }
 
 void wheelSpin(){
@@ -163,7 +177,7 @@ void wheelSpin(){
   }
   //Defend wheel
   if (mode == 3){
-    defend();
+    combatPrep();
   }
   //Inventory wheel
   if (mode == 4){
@@ -173,8 +187,11 @@ void wheelSpin(){
     enterRoom();
   }
 }
-
+//******************************************************************NAVIGATION**************************************************************************
 void navigation() {
+
+  Serial.println(mode);
+  Serial.println("Navigating");
   bool canNorth = false;
   bool canEast = false;
   bool canSouth = false;
@@ -184,6 +201,7 @@ void navigation() {
     for(int i=0; i< 6; i++){
       largeStrip.setPixelColor(i, strip.Color(10, 0, 0));
       largeStrip.show();
+      
     }
     canNorth = true;
   }
@@ -267,27 +285,72 @@ void navigation() {
     playerPos[1] = playerPos[1]-1;
   }
 }
+//******************************************************************Inventory**************************************************************************
 
 void inventory() {
-
+  Serial.println(mode);
+  Serial.println("inventory");
 }
 
 void combat() {
-  int isTreasure = random(0, 20);
-  int temp = random(0, 23);
-  updateHealth();
 
-  
+    Serial.println(mode);
+  Serial.println("combat");
+
+  updateHealth();
+  playerSpin = 0;
+  int red, blue, green;
+  if(!defend){
+    red = 10;
+    blue = 0;
+    green = 0;
+  }
+  else{
+    red = 0;
+    blue = 10;
+    green = 0;
+  }
+  for (int i = 0; i < 4; i++){
+    largeStrip.setPixelColor(i, strip.Color(red, green, blue));
+  }
+  if (isTreasure == 20){
+    largeStrip.setPixelColor(treasureNode, strip.Color(10, 10, 0));
+  }
+  largeStrip.setPixelColor(playerSpin, strip.Color(0, 10, 0));
+  largeStrip.show();
+  playerSpin++;
+  if((digitalRead(actionButtonPin) == LOW)){
+    for(int i = 0; i < 4; i++){
+      if (playerSpin == usedNodes[i]){
+        if(!defend){
+          enemyStats[0] -= 1;
+        }
+      }
+      else if (playerSpin == treasureNode && isTreasure == 20){
+        mode = 1;
+      }
+      else{
+        if(defend){
+          playerStats[0] -= 1;
+        }
+      }
+    }
+    mode = 3;
+    if (enemyStats[0] == 0){
+      enemyStats[0] = 16;
+      mode = 0;
+    }
+  }
 }
 
-void defend(){
+//******************************************************************Pre Combat**************************************************************************
+
+void combatPrep(){
   bool nodesFilled = false;
   //5% chance for a treasure node in combat
-  int isTreasure = random(1, 20);
-  //list of active nodes for round
-  int usedNodes[4];
+  isTreasure = random(1, 20);
   //possible treasure node
-  int treasureNode = random(0, 23);
+  treasureNode = random(0, 23);
 
   updateHealth();
 
@@ -326,7 +389,10 @@ void defend(){
     largeStrip.setPixelColor(treasureNode, (10, 10, 0));
     largeStrip.show();
   }
+  mode = 2;
 }
+
+//*****************************************************************Treasure**************************************************************************
 
 void treasure(){
   int temp = random(0, 3);
@@ -334,27 +400,33 @@ void treasure(){
  if (potions[temp] > 3){
   potions[temp] = 3;
  }
+ mode = 0;
 }
 
 void enterRoom() {
-  if (visitMap[playerPos[0]][playerPos[1]]){
-    int temp = random(1, 3);
+  if (!visitMap[playerPos[0]][playerPos[1]]){
+    Serial.println(visitMap[playerPos[0]][playerPos[1]]);
+    int temp = random(1, 4);
     if (temp == 1){
       //combat
+      Serial.println("Combat");
       isFighting = true;
       enemyStats[0] = 16;
-      mode == 2;
+      mode = 3;
     }
     if (temp == 2){
       //nothing
-      mode == 0;
+      Serial.println("nav");
+      mode = 0;
     }
     if (temp == 3){
       //treasure
-      mode == 4;
+      Serial.println("loot");
+      mode = 4;
     }
   }
 }
+//*****************************************************************Health**************************************************************************
 
 void updateHealth() {
   //Set player health display
@@ -366,7 +438,7 @@ void updateHealth() {
   //Set enemy Health display
   if(isFighting){
     for(int i=0; i < enemyStats[0]; i++){
-     mediumStrip.setPixelColor(i, strip.Color(10, 0, 0, 0));
+     mediumStrip.setPixelColor(i, strip.Color(0, 10, 0, 0));
      mediumStrip.show();
    }
   }

@@ -154,11 +154,14 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  if (playerPos != checkPos){
-  //  mode = 5;
+  /*if (playerPos != checkPos){
     checkPos[0] = playerPos[0];
     checkPos[1] = playerPos[1];
-  }
+  }*/
+  
+  //Serial.println(playerPos[0]);
+  //Serial.println(playerPos[1]);
+
   wheelSpin();
 }
 
@@ -190,13 +193,13 @@ void wheelSpin(){
 //******************************************************************NAVIGATION**************************************************************************
 void navigation() {
 
-  Serial.println(mode);
-  Serial.println("Navigating");
+  //Serial.println(mode);
+  //Serial.println("Navigating");
   bool canNorth = false;
   bool canEast = false;
   bool canSouth = false;
   bool canWest = false;
-  //north
+  //north red
   if(wallMap[playerPos[0]-1][playerPos[1]]){
     for(int i=0; i< 6; i++){
       largeStrip.setPixelColor(i, strip.Color(10, 0, 0));
@@ -205,7 +208,7 @@ void navigation() {
     }
     canNorth = true;
   }
-  //south
+  //south green
   if(wallMap[playerPos[0]+1][playerPos[1]]){
     for(int i=12; i< 18; i++){
       largeStrip.setPixelColor(i, strip.Color(0, 10, 0));
@@ -213,7 +216,7 @@ void navigation() {
     }
     canSouth = true;
   }
-  //east
+  //east blue
   if(wallMap[playerPos[0]][playerPos[1]+1]){
     for(int i=6; i< 12; i++){
       largeStrip.setPixelColor(i, strip.Color(0, 0, 10));
@@ -221,7 +224,7 @@ void navigation() {
     }
     canEast = true;
   }
-  //west
+  //west White
   if(wallMap[playerPos[0]][playerPos[1]-1]){
     for(int i=18; i< 24; i++){
       largeStrip.setPixelColor(i, strip.Color(10, 10, 10));
@@ -243,7 +246,10 @@ void navigation() {
       }
       delay(100);
     }
+    Serial.println("Went North");
     playerPos[0] = playerPos[0]-1;
+
+    mode = 5;
   }
   //South
   if((digitalRead(southButtonPin) == LOW) && canSouth){
@@ -256,7 +262,10 @@ void navigation() {
       }
       delay(100);
     }
+    Serial.println("Went South");
     playerPos[0] = playerPos[0]+1;
+    
+    mode = 5;
   }
   //East
   if((digitalRead(eastButtonPin) == LOW) && canEast){
@@ -269,7 +278,10 @@ void navigation() {
       }
       delay(100);
     }
+    Serial.println("Went East");
     playerPos[1] = playerPos[1]+1;
+    
+    mode = 5;
   }
   //West
   if((digitalRead(westButtonPin) == LOW) && canWest){
@@ -282,8 +294,12 @@ void navigation() {
       }
       delay(100);
     }
+    Serial.println("Went West");
     playerPos[1] = playerPos[1]-1;
+    
+    mode = 5;
   }
+  
 }
 //******************************************************************Inventory**************************************************************************
 
@@ -404,7 +420,7 @@ void treasure(){
 }
 
 void enterRoom() {
-  if (!visitMap[playerPos[0]][playerPos[1]]){
+  /*if (!visitMap[playerPos[0]][playerPos[1]]){
     Serial.println(visitMap[playerPos[0]][playerPos[1]]);
     int temp = random(1, 4);
     if (temp == 1){
@@ -424,8 +440,10 @@ void enterRoom() {
       Serial.println("loot");
       mode = 4;
     }
-  }
+  }*/
+  mode = 0;
 }
+
 //*****************************************************************Health**************************************************************************
 
 void updateHealth() {

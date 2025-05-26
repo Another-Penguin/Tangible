@@ -369,6 +369,7 @@ void combat() {
 
   if (enemyStats[0] == 0){
       enemyStats[0] = 16;
+      playerStats[0] ++;
       mode = 0;
     }
 
@@ -413,7 +414,7 @@ void combatPrep(){
 
   updateHealth();
 
-  targetMillis = currentMillis + random(2000);
+  targetMillis = currentMillis + random(2000) + 250;
 
   //create combat nodes
   for (int i = 0; i < 3; i++){
@@ -466,11 +467,14 @@ void treasure(){
 
 void enterRoom() {
   if (!visitMap[playerPos[0]][playerPos[1]]){
-    int temp = random(1, 4);
+    tilesPassed++;
+    int temp = random(1, 5);
     if (temp == 1){
       //combat
       Serial.println("Combat");
       isFighting = true;
+      //PUT ONE TIME COMBAT SHIZZ HERE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+      Serial.println("SEXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
       enemyStats[0] = 16;
       mode = 3;
     }
@@ -482,7 +486,7 @@ void enterRoom() {
     if (temp == 3){
       //treasure
       Serial.println("loot");
-      mode = 4;
+      mode = 0;
     }
   }
   else{
@@ -540,6 +544,7 @@ void endScreen(){
 void lose(){
   if(!hasEnded){
     Serial.println("ended");
+    Serial.println(tilesPassed);
     largeStrip.clear();
     mediumStrip.clear();
     strip.clear();

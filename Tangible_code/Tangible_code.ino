@@ -113,9 +113,16 @@ int potions[4] = {0, 0, 0, 0};
 
 // map management. playerPos array: {y, x}. map array: {y, x, isWall, isVisited}
 int playerPos[2] = {0, 0};
-int checkPos[2] = {0, 0};
+int winPos[2] = {0, 0};
 
 bool hasPressed = false;
+bool hasEnded = false;
+
+// time handler for combat
+int timer;
+unsigned long targetMillis;
+unsigned long currentMillis;
+const unsigned long period = 1000;
 
 void setup() {
   // put your setup code here, to run once:
@@ -147,15 +154,28 @@ void setup() {
   playerPos[0] = spawnNodes[start][0];
   playerPos[1] = spawnNodes[start][1];
 
-  checkPos[0] = playerPos[0];
-  checkPos[1] = playerPos[1];
   pinMode(westButtonPin, INPUT_PULLUP);
   pinMode(southButtonPin, INPUT_PULLUP);
   pinMode(eastButtonPin, INPUT_PULLUP);
   pinMode(northButtonPin, INPUT_PULLUP);
   pinMode(actionButtonPin, INPUT_PULLUP);
   //let the games begin
+  findEnd();
   updateHealth();
+}
+
+void findEnd(){
+  bool findIt = true;
+  int temp, temp2;
+  while(findIt){
+    temp = random(25);
+    temp2 = random(25);
+    if(wallMap[temp][temp2]){
+      findIt = false;
+      winPos[0] = temp;
+      winPos[1] = temp2;
+    }
+  }
 }
 
 void loop() {
@@ -168,14 +188,19 @@ void loop() {
   //Serial.println(playerPos[0]);
   //Serial.println(playerPos[1]);
 
+  currentMillis = millis();
+
   actionButtonState = digitalRead(actionButtonPin);
   northButtonState = digitalRead(northButtonPin);
   eastButtonState = digitalRead(eastButtonPin);
   southButtonState = digitalRead(southButtonPin);
   westButtonState = digitalRead(westButtonPin);
   wheelSpin();
-  if (!visitMap[playerPos[0]][playerPos[1]]){
-    Serial.println("FFS");
+  if(playerPos[0] == winPos[0] && playerPos[1] == winPos[1]){
+    mode = 6;
+  }
+  if (playerStats[0] == 0){
+    mode = 7;
   }
 }
 
@@ -203,6 +228,12 @@ void wheelSpin(){
   }
   if (mode == 5){
     enterRoom();
+  }
+  if(mode == 6){
+    endScreen();
+  }
+  if(mode == 7){
+    lose();
   }
 }
 //******************************************************************NAVIGATION**************************************************************************
@@ -320,7 +351,6 @@ void navigation() {
   else{
     hasPressed = true;
   }
-  Serial.println("End nav");
 }
 //******************************************************************Inventory**************************************************************************
 
@@ -332,50 +362,43 @@ void inventory() {
 void combat() {
   Serial.println("combat");
 
-  updateHealth();
-  playerSpin = 0;
-  int red, blue, green;
-  if(!defend){
-    red = 10;
-    blue = 0;
-    green = 0;
-  }
-  else{
-    red = 0;
-    blue = 10;
-    green = 0;
-  }
-  for (int i = 0; i < 4; i++){
-    largeStrip.setPixelColor(usedNodes[i], strip.Color(red, green, blue));
-  }
-  if (isTreasure == 20){
-    largeStrip.setPixelColor(treasureNode, strip.Color(10, 10, 0));
-  }
-  largeStrip.setPixelColor(playerSpin, strip.Color(0, 10, 0));
-  largeStrip.show();
-  playerSpin++;
-  if((digitalRead(actionButtonPin) == LOW)){
-    largeStrip.clear();
-    for(int i = 0; i < 4; i++){
-      if (playerSpin == usedNodes[i]){
-        if(!defend){
-          enemyStats[0] -= 1;
-        }
-      }
-      else if (playerSpin == treasureNode && isTreasure == 20){
-        mode = 1;
-      }
-      else{
-        if(defend){
-          playerStats[0] -= 1;
-        }
-      }
-    }
+  if (targetMillis <= currentMillis){
+    defend = !defend;
     mode = 3;
-    if (enemyStats[0] == 0){
+  }
+
+  if (enemyStats[0] == 0){
       enemyStats[0] = 16;
       mode = 0;
     }
+
+  updateHealth();
+  if(!defend){
+    for (int i = 0; i < 24; i++){
+      largeStrip.setPixelColor(i, strip.Color(10, 0, 0));
+    }
+  }
+  if(defend){
+    for (int i = 0; i < 24; i++){
+      largeStrip.setPixelColor(i, strip.Color(0, 10, 0));
+    }
+  }
+  largeStrip.show();
+  if((digitalRead(actionButtonPin) == LOW && !hasPressed)){
+    largeStrip.clear();
+        if(!defend){
+          enemyStats[0] -= 1;
+        }
+      else{
+          playerStats[0] -= 1;
+        }
+
+  }
+  if(actionButtonState == 1){
+    hasPressed = false;
+  }
+  else{
+    hasPressed = true;
   }
 }
 
@@ -389,6 +412,8 @@ void combatPrep(){
   treasureNode = random(0, 23);
 
   updateHealth();
+
+  targetMillis = currentMillis + random(2000);
 
   //create combat nodes
   for (int i = 0; i < 3; i++){
@@ -468,6 +493,8 @@ void enterRoom() {
 //*****************************************************************Health**************************************************************************
 
 void updateHealth() {
+  strip.clear();
+  mediumStrip.clear();
   //Set player health display
   for(int i=0; i < playerStats[0]; i++){
     strip.setPixelColor(i, strip.Color(0, 10, 0));
@@ -480,5 +507,60 @@ void updateHealth() {
      mediumStrip.setPixelColor(i, strip.Color(10, 0, 0, 0));
      mediumStrip.show();
    }
+  }
+}
+
+void endScreen(){
+  if(!hasEnded){
+    Serial.println("ended");
+    largeStrip.clear();
+    mediumStrip.clear();
+    strip.clear();
+    hasEnded = true;
+  }
+  
+    for (int i = 0; i < 24; i++){
+      largeStrip.setPixelColor(i, largeStrip.Color(10, 10, 10));
+      
+    }
+    largeStrip.show();
+
+    for (int i = 0; i < 16; i++){
+      mediumStrip.setPixelColor(i, mediumStrip.Color(10, 10, 10, 0));
+      
+    }
+    mediumStrip.show();
+
+    for (int i = 0; i < 12; i++){
+      strip.setPixelColor(i, strip.Color(10, 10, 10));
+      
+    }
+    strip.show();
+}
+void lose(){
+  if(!hasEnded){
+    Serial.println("ended");
+    largeStrip.clear();
+    mediumStrip.clear();
+    strip.clear();
+    hasEnded = true;
+  
+    for (int i = 0; i < 24; i++){
+      largeStrip.setPixelColor(i, largeStrip.Color(10, 0, 0));
+      largeStrip.show();
+    }
+    
+
+    for (int i = 0; i < 16; i++){
+      mediumStrip.setPixelColor(i, mediumStrip.Color(10, 0, 0, 0));
+      mediumStrip.show();
+    }
+    
+
+    for (int i = 0; i < 12; i++){
+      strip.setPixelColor(i, strip.Color(10, 0, 0));
+      strip.show();
+    }
+    
   }
 }

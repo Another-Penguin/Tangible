@@ -24,6 +24,7 @@ byte westButtonState = LOW;
 //LEAVE PIN 26 FOR RANDOM
 
 //this is the array that stores the map of the game, 1 means a corridor, 0 means a wall, use ctrl + f to make it easier to see and edit
+//there are 124 tiles
 bool wallMap[25][25] = {
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0},
@@ -517,6 +518,7 @@ void updateHealth() {
 void endScreen(){
   if(!hasEnded){
     Serial.println("ended");
+    Serial.println(tilesPassed);
     largeStrip.clear();
     mediumStrip.clear();
     strip.clear();

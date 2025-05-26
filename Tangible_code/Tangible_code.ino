@@ -16,7 +16,11 @@ Adafruit_NeoPixel largeStrip = Adafruit_NeoPixel(LARGE_LED_COUNT, LARGE_LED_PIN,
 #define southButtonPin 19
 #define westButtonPin 18
 #define actionButtonPin 17
-int buttonState = 0;
+byte actionButtonState = LOW;
+byte northButtonState = LOW;
+byte eastButtonState = LOW;
+byte southButtonState = LOW;
+byte westButtonState = LOW;
 //LEAVE PIN 26 FOR RANDOM
 
 //this is the array that stores the map of the game, 1 means a corridor, 0 means a wall, use ctrl + f to make it easier to see and edit
@@ -111,6 +115,8 @@ int potions[4] = {0, 0, 0, 0};
 int playerPos[2] = {0, 0};
 int checkPos[2] = {0, 0};
 
+bool hasPressed = false;
+
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
@@ -162,10 +168,19 @@ void loop() {
   //Serial.println(playerPos[0]);
   //Serial.println(playerPos[1]);
 
+  actionButtonState = digitalRead(actionButtonPin);
+  northButtonState = digitalRead(northButtonPin);
+  eastButtonState = digitalRead(eastButtonPin);
+  southButtonState = digitalRead(southButtonPin);
+  westButtonState = digitalRead(westButtonPin);
   wheelSpin();
+  if (!visitMap[playerPos[0]][playerPos[1]]){
+    Serial.println("FFS");
+  }
 }
 
 void wheelSpin(){
+  largeStrip.clear();
   //Exploring dungeon
   if (mode == 0){
     navigation();
@@ -192,7 +207,6 @@ void wheelSpin(){
 }
 //******************************************************************NAVIGATION**************************************************************************
 void navigation() {
-
   //Serial.println(mode);
   //Serial.println("Navigating");
   bool canNorth = false;
@@ -204,7 +218,6 @@ void navigation() {
     for(int i=0; i< 6; i++){
       largeStrip.setPixelColor(i, strip.Color(10, 0, 0));
       largeStrip.show();
-      
     }
     canNorth = true;
   }
@@ -236,70 +249,78 @@ void navigation() {
 
   //Flash selected direction
   //North
-  if((digitalRead(northButtonPin) == LOW) && canNorth){
-    for(int i; i < 4; i++){
+  if(northButtonState == LOW && canNorth && !hasPressed){
+    Serial.println("Start North");
+    for(int i = 0; i < 4; i++){
       largeStrip.clear();
-      delay(100);
       for(int j=0; j< 6; j++){
         largeStrip.setPixelColor(j, strip.Color(10, 0, 0));
         largeStrip.show();
       }
-      delay(100);
     }
+    hasPressed = true;
     Serial.println("Went North");
     playerPos[0] = playerPos[0]-1;
-
+    largeStrip.clear();
     mode = 5;
   }
   //South
-  if((digitalRead(southButtonPin) == LOW) && canSouth){
-    for(int i; i < 4; i++){
+  if(southButtonState == LOW && canSouth && !hasPressed){
+    Serial.println("Start South");
+    for(int i = 0; i < 4; i++){
       largeStrip.clear();
-      delay(100);
       for(int j=12; j< 18; j++){
         largeStrip.setPixelColor(j, strip.Color(0, 10, 0));
         largeStrip.show();
       }
-      delay(100);
     }
+    hasPressed = true;
     Serial.println("Went South");
     playerPos[0] = playerPos[0]+1;
-    
+    largeStrip.clear();
     mode = 5;
   }
   //East
-  if((digitalRead(eastButtonPin) == LOW) && canEast){
-    for(int i; i < 4; i++){
+  if(eastButtonState == LOW && canEast && !hasPressed){
+    Serial.println("Start East");
+    for(int i = 0; i < 4; i++){
       largeStrip.clear();
-      delay(100);
+
       for(int j=6; j< 12; j++){
         largeStrip.setPixelColor(j, strip.Color(0, 0, 10));
         largeStrip.show();
       }
-      delay(100);
     }
+    hasPressed = true;
     Serial.println("Went East");
     playerPos[1] = playerPos[1]+1;
-    
+    largeStrip.clear();
     mode = 5;
   }
   //West
-  if((digitalRead(westButtonPin) == LOW) && canWest){
-    for(int i; i < 4; i++){
+  if(westButtonState == LOW && canWest && !hasPressed){
+    Serial.println("Start West");
+    for(int i = 0; i < 4; i++){
       largeStrip.clear();
-      delay(100);
+
       for(int j=18; j< 24; j++){
         largeStrip.setPixelColor(j, strip.Color(10, 10, 10));
         largeStrip.show();
       }
-      delay(100);
     }
+    hasPressed = true;
     Serial.println("Went West");
     playerPos[1] = playerPos[1]-1;
-    
+    largeStrip.clear();
     mode = 5;
   }
-  
+  if(northButtonState == 1 && eastButtonState == 1 && southButtonState == 1 && westButtonState == 1){
+    hasPressed = false;
+  }
+  else{
+    hasPressed = true;
+  }
+  Serial.println("End nav");
 }
 //******************************************************************Inventory**************************************************************************
 
@@ -309,8 +330,6 @@ void inventory() {
 }
 
 void combat() {
-
-    Serial.println(mode);
   Serial.println("combat");
 
   updateHealth();
@@ -327,7 +346,7 @@ void combat() {
     green = 0;
   }
   for (int i = 0; i < 4; i++){
-    largeStrip.setPixelColor(i, strip.Color(red, green, blue));
+    largeStrip.setPixelColor(usedNodes[i], strip.Color(red, green, blue));
   }
   if (isTreasure == 20){
     largeStrip.setPixelColor(treasureNode, strip.Color(10, 10, 0));
@@ -336,6 +355,7 @@ void combat() {
   largeStrip.show();
   playerSpin++;
   if((digitalRead(actionButtonPin) == LOW)){
+    largeStrip.clear();
     for(int i = 0; i < 4; i++){
       if (playerSpin == usedNodes[i]){
         if(!defend){
@@ -420,8 +440,7 @@ void treasure(){
 }
 
 void enterRoom() {
-  /*if (!visitMap[playerPos[0]][playerPos[1]]){
-    Serial.println(visitMap[playerPos[0]][playerPos[1]]);
+  if (!visitMap[playerPos[0]][playerPos[1]]){
     int temp = random(1, 4);
     if (temp == 1){
       //combat
@@ -440,8 +459,10 @@ void enterRoom() {
       Serial.println("loot");
       mode = 4;
     }
-  }*/
-  mode = 0;
+  }
+  else{
+    mode = 0;
+  }
 }
 
 //*****************************************************************Health**************************************************************************
@@ -456,7 +477,7 @@ void updateHealth() {
   //Set enemy Health display
   if(isFighting){
     for(int i=0; i < enemyStats[0]; i++){
-     mediumStrip.setPixelColor(i, strip.Color(0, 10, 0, 0));
+     mediumStrip.setPixelColor(i, strip.Color(10, 0, 0, 0));
      mediumStrip.show();
    }
   }

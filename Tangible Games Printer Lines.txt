@@ -1,0 +1,120 @@
+﻿Opening:
+
+
+-You wake up in a strange cave, armed with a sword and shield. It’s time to begin your adventure.
+-You awaken in an odd labyrinth. With your sword and shield in hand, you go forth into the unknown.
+-A strange maze of twists and turns lies before you. Good luck, you’re going to need it. Along with your sword and shield.
+
+
+Encounters:
+
+
+-A (Monster) attacks!
+-(Monster) Appeared!
+-You were ambushed by (Big monster)!
+-Watch out! It's a (monster)!
+-Unbelievable! It is a (Rare monster)!
+
+
+Insane monster encounter:
+-This doesn’t bode well…
+
+
+
+
+Post encounter:
+(if landed every attack)
+-You didn’t miss a single swing!
+-They didn't stand a chance against your perfect attacks!
+-Incredible! Zero misses!
+
+(if successfully defended against every attack)
+-You were impenetrable!
+-Perfect Defense!
+-Such evasiveness!
+
+(if you took many hits during the encounter)
+-That was close…
+-You managed to scrape by…
+-The (monster) nearly had you! Better be careful…
+
+(if you took almost no hits)
+-That was nearly flawless!
+-Nicely done.
+
+(avg amount of hits taken to damage dealt)
+-You were able to defeat the (monster).
+
+During Encounter:
+(landing multiple attacks in a row)
+-you land multiple slashes against the (monster).
+-you slice and dice at the (monster).
+
+(landing one attack)
+-You strike the (monster) with your blade.
+-You land an attack against the (monster).
+
+
+(being hit by a monster)
+-The (monster) lurches towards you! X damage taken.
+-The (monster) bares its fangs. You take X damage!
+
+(being hit multiple times)
+-The (monster) relentlessly attacks you. X damage taken!
+-The (monster) deals a flurry of attacks to you! You take X damage
+
+(being hit the maximum amount of times probably for big monsters)
+-Your shield couldn’t block the (monster) this time. X damage taken.
+-YYYYYYYYOOOOUUUCHH!!!! X damage taken!!!!
+
+
+Treasure room:
+-Lucky you! It’s a treasure room!
+You got… (item)!
+-Wow! This room is full of treasure!
+You obtained (item).
+
+More than one in a row:
+-Holy Moly, another one? More treasure for you!
+You got (item)!
+
+
+Boss Door (?)
+-An ominous door lies before you. Be careful…
+-You feel an unnerving presence before you…
+-Something evil is approaching…
+
+
+Finding Door/Exit:
+-You find a door leading somewhere new.
+-You traverse a set of stairs leading downward/upward.
+-You entered a new area.
+
+-You see a glimmer of light as you walk down a passageway. You escaped!
+-A grand door lies before you. As you open it, light pours through, revealing the outside world again.
+
+
+Summary:
+(if you landed every single hit and/or defended every single attack ever)
+-With your defenses, you’re practically invincible! 
+-With your strength, you’re practically invisible! 
+
+(if you had a high hit and/or defend ratio)
+-You are a highly skilled warrior.
+-Your defense is nigh unmatched.
+
+(average hit/defend ratio)
+-You were able to survive the dungeon. 
+-You did well escaping the dungeon.
+
+(horrendous hit/defend ratio)
+-How did you survive? What? 
+-The monsters must have felt sorry for you.
+
+
+Defeat
+-You were slain by the (monster). How unfortunate…
+-Despite your efforts, the (monster) defeated you.
+-The monster takes your life. Another life lost to the dungeon…
+
+-Hit/miss ratio: Awful/Average/Decent/Good/Epic

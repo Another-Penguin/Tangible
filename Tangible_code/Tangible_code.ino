@@ -365,11 +365,11 @@ void navigation() {
 
 void inventory() {
   Serial.println(mode);
-  Serial.println("inventory");
+  //Serial.println("inventory");
 }
 
 void combat() {
-  Serial.println("combat");
+  //Serial.println("combat");
 
   if (targetMillis <= currentMillis){
     defend = !defend;
@@ -379,7 +379,7 @@ void combat() {
   if (enemyStats[0] == 0){
       enemyStats[0] = 16;
       playerStats[0] ++;
-      battlesWon++
+      battlesWon++;
       mode = 0;
     }
 
@@ -482,21 +482,21 @@ void enterRoom() {
     int temp = random(1, 5);
     if (temp == 1){
       //combat
-      Serial.println("Combat");
+      //Serial.println("Combat");
       isFighting = true;
       //PUT ONE TIME COMBAT STUFF HERE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-      Serial.println("okey!");
+      //Serial.println("okey!");
       enemyStats[0] = 16;
       mode = 3;
     }
     if (temp == 2){
       //nothing
-      Serial.println("nav");
+      //Serial.println("nav");
       mode = 0;
     }
     if (temp == 3){
       //treasure
-      Serial.println("loot");
+      //Serial.println("loot");
       mode = 0;
     }
   }
@@ -529,9 +529,13 @@ void updateHealth() {
 //win function, happens when player steps onto the win tile
 void endScreen(){
   if(!hasEnded){
-    Serial.println("ended");
-    Serial.println(tilesPassed);
-    Serial.println(battlesWon);
+    Serial.println("You Win!!");
+    Serial.print("You traversed ");
+    Serial.print(tilesPassed);
+    Serial.println(" tiles");
+    Serial.print("You defeated ");
+    Serial.print(battlesWon);
+    Serial.print(" monsters");
     largeStrip.clear();
     mediumStrip.clear();
     strip.clear();
@@ -558,9 +562,13 @@ void endScreen(){
 //losing function, happens when the player health drops to 0
 void lose(){
   if(!hasEnded){
-    Serial.println("ended");
-    Serial.println(tilesPassed);
-    Serial.println(battlesWon;
+    Serial.println("You lose!!");
+    Serial.print("You traversed ");
+    Serial.print(tilesPassed);
+    Serial.println(" tiles");
+    Serial.print("You defeated ");
+    Serial.print(battlesWon);
+    Serial.print(" monsters");
     largeStrip.clear();
     mediumStrip.clear();
     strip.clear();
